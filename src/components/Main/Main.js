@@ -15,13 +15,13 @@ function Main(props) {
       setUserName(res.name);
       setUserDescription(res.about);
     }).catch(err => console.log(err))
-  });
+  }, []);
 
   React.useEffect(() => {
     api.getStartedCardsPack().then(res => {
       setCards(res);
     }).catch(err => console.log(err))
-  });
+  }, []);
 
   return (
     <main className="main">
@@ -40,7 +40,7 @@ function Main(props) {
 
       <section className="gallery">
         <ul className="gallery__list position-center">
-          {cards.map((card, i) => (<Card card={card} key={i} onCardClick={props.onCardClick} />))}
+          {cards.map((card) => (<Card card={card} key={card._id} onCardClick={props.onCardClick} />))}
         </ul>
       </section>
 
