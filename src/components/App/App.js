@@ -12,17 +12,15 @@ import api from '../../utils/Api.js';
 function App() {
 
   const [currentUser, setCurrentUser] = React.useState({});
-  React.useEffect(() => {
-    api.getUserData().then(res => setCurrentUser(res));
-  }, []);
-
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
-  const handleEditProfileClick = () => setIsEditProfilePopupOpen(true);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-  const handleAddPlaceClick = () => setIsAddPlacePopupOpen(true);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
-  const handleEditAvatarClick = () => setIsEditAvatarPopupOpen(true);
   const [selectedCard, setSelectedCard] = React.useState({ name: '', link: '' });
+  const [cards, setCards] = React.useState([]);
+
+  const handleEditProfileClick = () => setIsEditProfilePopupOpen(true);
+  const handleAddPlaceClick = () => setIsAddPlacePopupOpen(true);
+  const handleEditAvatarClick = () => setIsEditAvatarPopupOpen(true);
   const handleCardClick = (card) => setSelectedCard(card);
   const closeAllPopups = () => {
     setIsEditProfilePopupOpen(false);
@@ -30,11 +28,17 @@ function App() {
     setIsEditAvatarPopupOpen(false);
     setSelectedCard({ name: '', link: '' });
   }
+  const handleUpdateUser = (data) => api.editProfile(data)
+    .then(res => setCurrentUser(res))
+    .catch(err => console.log(err));
+  const handleUpdateAvatar = (avatar) => api.editAvatar(avatar)
+    .then(res => setCurrentUser(res))
+    .catch(err => console.log(err));
 
-  const handleUpdateUser = (data) => api.editProfile(data).then(res => setCurrentUser(res));
-  const handleUpdateAvatar = (avatar) => api.editAvatar(avatar).then(res => setCurrentUser(res));
+  React.useEffect(() => {
+    api.getUserData().then(res => setCurrentUser(res));
+  }, []);
 
-  const [cards, setCards] = React.useState([]);
   React.useEffect(() => {
     api.getStartedCardsPack().then(res => {
       setCards(res);
@@ -44,14 +48,19 @@ function App() {
   const handleLikeClick = (card) => {
     const isLiked = card.likes.some(el => el._id === currentUser._id);
     (isLiked ? api.removeLike(card._id) : api.setLike(card._id))
-      .then(newCard => setCards(cards.map(el => el._id === card._id ? newCard : el)));
+      .then(newCard => setCards(cards.map(el => el._id === card._id ? newCard : el)))
+      .catch(err => console.log(err));
   }
 
   const handleDeleteClick = (card) => {
-    api.removeCard(card._id).then(res => setCards(cards.filter(el => !(el._id === card._id))));
+    api.removeCard(card._id)
+      .then(res => setCards(cards.filter(el => !(el._id === card._id))))
+      .catch(err => console.log(err));
   }
 
-  const handlePlaceAdd = (data) => api.addNewCard(data).then(newCard => setCards([newCard, ...cards]));
+  const handlePlaceAdd = (data) => api.addNewCard(data)
+    .then(newCard => setCards([newCard, ...cards]))
+    .catch(err => console.log(err));
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
